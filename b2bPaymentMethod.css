@@ -1,0 +1,26 @@
+/**
+ * Created by awalia on 6/14/2021.
+ */
+
+.inputStyle{
+    background-color: rgb(247, 247, 247);
+    border: 0;
+    border-radius: 0;
+}
+
+.inputBorderBottom{
+    border-bottom: 1px solid;
+}
+.voucherCodeWidth{
+    width:90%;
+}
+
+
+
+.mopClass{
+    font-style: normal;
+    font-weight: bold;
+    font-size: var(--lwc-titleFontSize);
+    /* Grey/900 */
+    color: #222222;
+}

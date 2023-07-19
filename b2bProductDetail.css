@@ -1,0 +1,115 @@
+/**
+ * Created by awalia on 6/13/2021.
+ */
+:host {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+lightning-breadcrumbs {
+    display: block;
+}
+
+.product-information {
+    display: flex;
+}
+
+.inputStyle{
+    background-color: rgb(247, 247, 247);
+    border: 0;
+    border-radius: 0;
+}
+
+.inputBorderBottom{
+    border-bottom: 1px solid;
+}
+
+.prodNameClass{
+    font-style: normal;
+    font-weight: bold;
+    font-size: 24px;
+    color: #222222;
+}
+
+.prodDetailClass{
+    font-style: normal;
+    font-weight: normal;
+    color: #222222;
+}
+
+.prodDesc{
+    font-style: normal;
+    font-weight: normal;
+    color: #222222;
+}
+
+.priceClass{
+    font-style: normal;
+    font-weight: normal;
+    color: #222222;
+}
+
+figure {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    /*width: 400px;
+    height: 375px;*/
+}
+
+img {
+    width: 100%;
+    height: 100%;
+}
+
+
+.details-area {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    align-items: stretch;
+    min-height: 320px;
+}
+
+
+.price {
+    align-self: end;
+}
+
+
+.mainPadding{
+
+}
+
+
+
+/* CSS Styling for narrow screens (e.g. phones) */
+@media only screen and (max-width: 48em) {
+    /* SLDS token: mqSmall */
+    .product-information {
+        flex-direction: column !important;
+        display: block;
+    }
+
+    .details-area {
+        padding-top: var(--lwc-spacingSmall);
+    }
+
+    .image {
+        align-self: center;
+        padding:0px !important;
+        
+    }
+    figure {
+        padding:0px !important;
+       /* width: 100% !important;
+        height: 350px !important;*/
+
+    }
+    .figCustomImg{
+        padding:0px !important;
+    }
+
+    
+}

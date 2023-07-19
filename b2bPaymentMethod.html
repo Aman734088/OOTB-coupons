@@ -1,0 +1,121 @@
+<!--
+ - Created by awalia on 6/14/2021.
+ -->
+
+<!-- B2B Payment Method -->
+<template>
+    <template if:true={showSpinner} >
+        <div>
+            <lightning-spinner
+                    alternative-text="Loading..." variant="brand">
+            </lightning-spinner>
+        </div>
+    </template>
+    <div class="">
+        <h4 class="slds-text-heading_small mopClass"><b>Method of Purchase</b></h4>
+        <div class="radioTextClass">
+            <lightning-radio-group name="radioGroup"
+                                   options={paymentMethods}
+                                   value={selectedPaymentMethod}
+                                   onchange={payMethodChange}
+                                   type="radio"></lightning-radio-group>
+        </div>
+
+        <div class="slds-m-top_medium" if:true={isPPT}>
+            <div class="slds-grid">
+                <div class="slds-size_2-of-3">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="text-input-id-1">
+                            <abbr class="slds-required" title="required">* </abbr>Registration Code
+                            <lightning-helptext style="vertical-align: bottom;" content="A pre-purchased registration code is used when you or your company has completely paid in advance for the Certification(s) or Event(s)."></lightning-helptext>
+                        </label>
+                        
+                        <div class="slds-form-element__control">
+                            <input class="slds-input inputStyle inputBorderBottom " onchange={pptChange} required type="text" placeholder="" value={pptCode}  />
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="slds-size_1-of-3">
+                    <lightning-button label="Validate" variant="brand" class="slds-m-left_x-small"
+                                      onclick={validateTicket}>
+                    </lightning-button>
+                </div> -->
+            </div>
+        </div>
+    <div class="slds-m-top_medium"  if:true={showVoucherCode}>
+        <template if:false={couponValue}>  <!--before :<template if:false={productCartItem.Coupon__c}> -->
+            <div class="slds-grid">
+                <div>
+                    <label class="slds-form-element__label" for="text-input-id-1">
+                        Voucher Code 
+                        <lightning-helptext style="vertical-align: bottom;" content="A voucher code provides a partial discount on the Certification(s) or Event(s) you are purchasing. In some cases, this code provides a discount toward the full amount of your purchase."></lightning-helptext>
+                    </label>
+                </div>
+            </div>
+            <div class="slds-grid">
+                <div class="slds-size_2-of-3">
+                    <div class="slds-form-element"> 
+                        <div class="slds-form-element__control">
+                            <input class="slds-input inputStyle inputBorderBottom" type="text" onchange={vcChange} placeholder="Voucher Code" value={voucherCodeValue}  /> <!-- value={voucherCodeValue} -->
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-size_1-of-3" style="vertical-align: bottom;">
+                    <lightning-button  label="APPLY VOUCHER CODE" variant="brand" class="slds-m-left_x-small"
+                                    onclick={applyCoupon}>
+                    </lightning-button>
+                </div>
+            </div>
+            </template>
+            <!-- <template if:true={productCartItem.Coupon__c}>
+                <div class="slds-size_2-of-3">
+                    Voucher Applied: 
+                    <template if:true={productCartItem.Coupon__r.DisplayName__c}>
+                        <lightning-badge label={productCartItem.Coupon__r.DisplayName__c} class="slds-badge_inverse"></lightning-badge>
+                    </template>
+                    <template if:false={productCartItem.Coupon__r.DisplayName__c}>
+                        <lightning-badge label={voucherCodeValue} class="slds-badge_inverse"></lightning-badge>
+                    </template>
+                    <lightning-button-icon icon-name="utility:close"  onclick={removeCoupon} alternative-text="Remove" variant="bare" class="slds-m-left_xx-small" title="Remove"></lightning-button-icon>
+                </div>
+            </template>--> 
+            <!--Dss-90 OOTB Coupons-->
+            <template if:true={couponValue}>
+                <div class="slds-size_2-of-3">
+                    Voucher Applied:
+                    <template for:each={cartcoupons} for:item="coupon">
+                        <lightning-badge key={coupon} label={coupon} class="slds-badge_inverse"></lightning-badge>
+                    </template> 
+                    <lightning-button-icon icon-name= "utility:close"  onclick={removeCoupon} alternative-text="Remove" variant="bare" class="slds-m-left_xx-small" title="Remove"></lightning-button-icon>
+                </div>
+            </template> 
+        </div>
+        <div class="slds-m-top_medium">
+            <div if:true={errorMsg}>
+                <div class="slds-notify_container">
+                  <div class="slds-notify slds-notify_toast slds-theme_error" role="status">
+                    <span class="slds-assistive-text">error</span>
+                    <div class="slds-notify__content">
+                      <h2 class="slds-text-heading_small ">{errorMsg}</h2>
+                    </div>
+                    <div class="slds-notify__close">
+                        <lightning-button-icon icon-name="utility:close"  onclick={cancelErr} alternative-text="Remove" variant="bare-inverse"  title="Remove"></lightning-button-icon>
+                    </div>
+                  </div>
+                </div>
+            </div>
+            <div class="slds-grid">
+                <!--
+                <div class="slds-size_2-of-3">
+                    <input class="slds-input slds-border_bottom inputStyle  inputBorderBottom" required  placeholder="Email Address" type="email" onchange={emailChange} value={userEmail} />
+                </div>
+                -->
+                <div class="slds-size_3-of-3">
+                    <lightning-button label="Checkout" variant="brand" class="slds-m-left_x-small"
+                                      disabled={canCheckOut} onclick={proceedToCheckOut}>
+                    </lightning-button>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

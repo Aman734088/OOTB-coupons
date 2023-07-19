@@ -1,0 +1,403 @@
+<!--
+ - Created by awalia on 6/13/2021.
+ -->
+
+<!-- B2B Product Detail -->
+<template>
+    <template if:true={showSpinner} >
+        <div>
+            <lightning-spinner
+                    alternative-text="Loading..." variant="brand">
+            </lightning-spinner>
+        </div>
+    </template>
+    <div class="mainPadding slds-m-top_medium">
+
+        <div if:false={isDesktop}>
+            <lightning-layout multiple-rows="true">
+                <lightning-layout-item size="12" medium-device-size="12" padding="around-small">
+                    <figure class="slds-p-around_xxx-small figCustomImg">
+                        <img src={productImage} />
+                    </figure>
+                    <div class="slds-m-top_medium">
+                        <div if:true={isEvent}>
+                            <c-b2b-early-bird if:true={product.pricingDetails} account-status={product.accountStatus}  price-detail={product.pricingDetails} ></c-b2b-early-bird>
+                        </div>
+                        <div if:true={isCertification}>
+                            <c-b2b-certification-courses  oncertselect={handleCertSelect} course-list={product.activeCertifications} >
+        
+                            </c-b2b-certification-courses>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="heading slds-border_bottom">
+                        <h2 class="slds-text-heading_medium prodNameClass"><b>{productName}</b></h2>
+                        <div class="slds-m-top_small prodDetailClass">{startDate}–{endDate}</div>
+                        <div class="slds-m-top_small prodDetailClass slds-hide">SKU: {productSku}</div>
+                    </div>
+                    <div>
+                        <div class="prodDesc slds-m-top_medium">
+                                <lightning-formatted-rich-text value={productDesc}></lightning-formatted-rich-text>
+                        </div>
+                        <div class="prodDesc slds-m-top_medium">
+                            <h8 class="slds-text-heading_small">
+                                <b>Registration Period</b>
+                            </h8>
+                            <div class="slds-m-top_small prodDetailClass">{registrationStartDate}–{registrationEndDate}</div>
+                        </div>
+    
+                        <div if:false={productCartItem} class="price slds-m-top_large">
+                            <div if:true={cartId}>
+                                <lightning-layout if:true={hasPrice} vertical-align="center">
+                                    <lightning-layout-item size="4">
+                                        <span class="slds-m-right_small priceClass">
+                                            <b>Your Price</b>:
+                                        </span>
+                                        <span class="priceClass" style="font-weight: bold;">
+                                            <lightning-formatted-number if:true={hasPrice} currency-code={currencyCode} format-style="currency"
+                                                                        value={unitPrice}>
+                                            </lightning-formatted-number>
+                                        </span>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item size="4">
+                                        <input class="slds-input slds-border_bottom inputStyle inputBorderBottom" onchange={addToCartQtyChange} placeholder="Quantity" type="number" value={qtyValue} min={minqtyValue} max={maxqtyValue} step="1"/>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item >
+                                        <lightning-button label="Add to Cart" variant="brand" class="slds-m-left_x-small"
+                                                            disabled={isCartLocked} onclick={notifyAddToCart}>
+                                        </lightning-button>
+                                    </lightning-layout-item>
+                                </lightning-layout>
+                            </div>
+                        </div>
+                    </div>
+                    <div if:true={hasPrice} class="slds-m-top_medium">
+                        <div if:true={productCartItem}>
+                            <div class=" backgroundClass nameClass slds-m-bottom_medium">
+                                <h4 class="slds-text-heading_small mopClass"><b>Cart Summary</b></h4>
+    
+                                <div class="slds-m-bottom_small slds-m-top_small slds-border_bottom">
+                                    <div if:true={isCertification} class="slds-grid slds-wrap slds-m-bottom_medium">
+                                        <div class="slds-size_6-of-12">
+                                            <span class="slds-m-right_small ">
+                                                Course Detail
+                                            </span>
+                                        </div>
+                                        <div class="slds-size_6-of-12">
+                                            <span class="slds-m-right_small ">
+                                                {productCartItem.Product2.Name} ({productCartItem.Product2.ProductCode})
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="slds-grid slds-wrap slds-m-bottom_medium">
+                                        <div class="slds-size_6-of-12">
+                                            <span class="slds-m-right_small nameClass ">
+                                                Price
+                                            </span>
+                                        </div>
+                                        <div class="slds-size_6-of-12 textright">
+                                                <span class=" nameClass" style="font-weight: bold;">
+                                                <lightning-formatted-number currency-code={currencyCode} format-style="currency"
+                                                                            value={productCartItem.SalesPrice}>
+                                                </lightning-formatted-number>
+                                            </span>
+                                        </div>
+                                    </div>
+    
+                                    <div class="slds-grid slds-wrap slds-m-bottom_medium">
+                                        <div class="slds-size_6-of-12">
+                                            <span class="slds-m-right_small ">
+                                                Quantity
+                                            </span>
+                                        </div>
+                                        <div class="slds-size_6-of-12 textright">
+                                            <template if:true={attendeeAdded}>
+                                                {qtyValue}
+                                            </template>
+                                            <template if:false={attendeeAdded}>
+                                                <span>
+                                                    <template if:true={disableMinQty}>
+                                                        <button disabled class="slds-button slds-button_neutral btnClass " title="Decrement Quantity"  ><lightning-icon size="small" icon-name="utility:dash"></lightning-icon></button>
+                                                    </template>
+                                                        <template if:false={disableMinQty}>
+                                                            <button  class="slds-button slds-button_neutral btnClass " onclick={handleQuantityDeIncrement} title="Decrement Quantity"  ><lightning-icon size="small" icon-name="utility:dash"></lightning-icon></button>
+                                                        </template>
+                                                    <input class="slds-input" style="width:35%;border-radius:0;"  placeholder="Quantity" type="number" value={qtyValue} min={minqtyValue} max={maxqtyValue} step="1"
+                                                        onchange={handleQuantityChange} />
+                                                    <template if:true={disableMaxQty}>
+                                                        <button disabled class="slds-button  slds-button_neutral btnClass "  title="Increment Quantity" ><lightning-icon size="small" icon-name="utility:add"> </lightning-icon></button>
+                                                    </template>
+                                                    <template if:false={disableMaxQty}>
+                                                        <button class="slds-button  slds-button_neutral btnClass " onclick= {handleQuantityIncrement} title="Increment Quantity" ><lightning-icon size="small" icon-name="utility:add"> </lightning-icon></button>
+                                                    </template>
+                                                </span>
+                                            </template>
+                                        </div>
+                                    </div>
+                                    <template if:true={productCartItem.TotalAdjustmentAmount}> <!--if:true={productCartItem.TotalCouponAdjustment__c}>-->
+                                        <div class="slds-grid slds-wrap slds-m-bottom_medium">
+                                            <div class="slds-size_6-of-12">
+                                                <span class="slds-m-right_small nameClass ">
+                                                    Total Discount
+                                                </span>
+                                            </div>
+                                            <div class="slds-size_6-of-12 textright">
+                                                    <span class=" nameClass" style="font-weight: bold;">
+                                                    <lightning-formatted-number currency-code={currencyCode} format-style="currency"
+                                                                                value={productCartItem.TotalAdjustmentAmount}>
+                                                    </lightning-formatted-number>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    
+                                </div>
+                                <div class="slds-grid slds-wrap">
+                                    <div class="slds-size_6-of-12">
+                                        <span class="slds-m-right_small ">
+                                            <b>Total Price</b>:
+                                        </span>
+                                    </div>
+                                    <div class="slds-size_6-of-12 textright">
+                                            <span class="" style="font-weight: bold;">
+                                            <lightning-formatted-number currency-code={currencyCode} format-style="currency"
+                                                                        value={productCartItem.SalesPrice}> <!--totalprice--> 
+                                            </lightning-formatted-number>
+                                        </span>
+                                    </div>
+                                </div>
+    
+                            </div>
+    
+                        </div>
+                    </div>
+                    <div if:true={productCartItem}>
+                        <c-b2b-payment-method
+                                if:true={hasPrice}
+                                cart-id={cartId}
+                                product-category={productCategory}
+                                product-added-to-cart={productAddedToCart}
+                                can-check-out={isCartLocked}
+                                onnotifyaddtocart={notifyAddToCart}
+                                product-cart-item={productCartItem}
+                                oncouponupdate={handleCoupon}
+                        ></c-b2b-payment-method>
+                    </div>    
+                    <figure if:true={productImageSec} class="slds-p-around_xxx-small figCustomImg">
+                        <img src={productImageSec} />
+                    </figure>                
+                    
+                </lightning-layout-item>
+
+            </lightning-layout>
+        </div>
+
+        <div if:true={isDesktop}>
+            <div class="slds-grid slds-gutters product-information ">
+                <div class="slds-col slds-size_1-of-3 image slds-p-right_large">
+                    <figure class="slds-p-around_xxx-small figCustomImg">
+                        <img src={productImage} />
+                    </figure>
+                    <div class="slds-m-top_medium">
+                        <div if:true={isEvent}>
+                            <c-b2b-early-bird if:true={product.pricingDetails} account-status={product.accountStatus}  price-detail={product.pricingDetails} ></c-b2b-early-bird>
+                        </div>
+                        <div if:true={isCertification}>
+                            <c-b2b-certification-courses  oncertselect={handleCertSelect} course-list={product.activeCertifications} >
+        
+                            </c-b2b-certification-courses>
+                        </div>
+                    </div>
+                    <div if:true={productImageSec} class="slds-m-top_medium">
+                        <figure class="slds-p-around_xxx-small figCustomImg">
+                            <img src={productImageSec} />
+                        </figure>
+                    </div>
+                </div>
+
+                <div class="slds-col slds-size_2-of-3 details-area">
+                    <div class="heading slds-border_bottom">
+                        <h2 class="slds-text-heading_medium prodNameClass"><b>{productName}</b></h2>
+                        <div class="slds-m-top_small prodDetailClass">{startDate}–{endDate}</div>
+                        <div class="slds-m-top_small prodDetailClass slds-hide">SKU: {productSku}</div>
+                    </div>
+                    <div>
+                        <div class="prodDesc slds-m-top_medium">
+                                <lightning-formatted-rich-text value={productDesc}></lightning-formatted-rich-text>
+                        </div>
+                        <div class="prodDesc slds-m-top_medium">
+                            <h8 class="slds-text-heading_small">
+                                <b>Registration Period</b>
+                            </h8>
+                            <div class="slds-m-top_small prodDetailClass">{registrationStartDate}–{registrationEndDate}</div>
+                        </div>
+    
+                        <div if:false={productCartItem} class="price slds-m-top_large">
+                            <div if:true={cartId}>
+                                <lightning-layout if:true={hasPrice} vertical-align="center">
+                                    <lightning-layout-item size="4">
+                                        <span class="slds-m-right_small priceClass">
+                                            <b>Your Price</b>:
+                                        </span>
+                                        <span class="priceClass" style="font-weight: bold;">
+                                            <lightning-formatted-number if:true={hasPrice} currency-code={currencyCode} format-style="currency"
+                                                                        value={unitPrice}>
+                                            </lightning-formatted-number>
+                                        </span>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item size="4">
+                                        <input class="slds-input slds-border_bottom inputStyle inputBorderBottom" onchange={addToCartQtyChange} placeholder="Quantity" type="number" value={qtyValue} min={minqtyValue} max={maxqtyValue} step="1"/>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item >
+                                        <lightning-button label="Add to Cart" variant="brand" class="slds-m-left_x-small"
+                                                            disabled={isCartLocked} onclick={notifyAddToCart}>
+                                        </lightning-button>
+                                    </lightning-layout-item>
+                                </lightning-layout>
+                            </div>
+                        </div>
+                    </div>
+                    <div if:true={hasPrice} class="slds-m-top_medium">
+                        <div if:true={productCartItem}>
+                            <div class=" backgroundClass nameClass slds-m-bottom_medium">
+                                <h4 class="slds-text-heading_small mopClass"><b>Cart Summary</b></h4>
+    
+                                <div class="slds-m-bottom_small slds-m-top_small slds-border_bottom">
+                                    <div if:true={isCertification} class="slds-grid slds-wrap slds-m-bottom_medium">
+                                        <div class="slds-size_6-of-12">
+                                            <span class="slds-m-right_small ">
+                                                Course Detail
+                                            </span>
+                                        </div>
+                                        <div class="slds-size_6-of-12">
+                                            <span class="slds-m-right_small ">
+                                                {productCartItem.Product2.Name}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="slds-grid slds-wrap slds-m-bottom_medium">
+                                        <div class="slds-size_6-of-12">
+                                            <span class="slds-m-right_small nameClass ">
+                                                Price
+                                            </span>
+                                        </div>
+                                        <div class="slds-size_6-of-12 textright">
+                                                <span class=" nameClass" style="font-weight: bold;">
+                                                <lightning-formatted-number currency-code={currencyCode} format-style="currency"
+                                                                            value={productCartItem.SalesPrice}>
+                                                </lightning-formatted-number>
+                                            </span>
+                                        </div>
+                                    </div>
+    
+                                    <div class="slds-grid slds-wrap slds-m-bottom_medium">
+                                        <div class="slds-size_6-of-12">
+                                            <span class="slds-m-right_small ">
+                                                Quantity
+                                            </span>
+                                        </div>
+                                        <div class="slds-size_6-of-12 textright">
+                                            <template if:true={attendeeAdded}>
+                                                {qtyValue}
+                                            </template>
+                                            <template if:false={attendeeAdded}>
+                                                <span>
+                                                    <template if:true={disableMinQty}>
+                                                        <button disabled class="slds-button slds-button_neutral btnClass "  title="Decrement Quantity"  ><lightning-icon size="small" icon-name="utility:dash"></lightning-icon></button>
+                                                    </template>
+                                                        <template if:false={disableMinQty}>
+                                                            <button  class="slds-button slds-button_neutral btnClass " onclick={handleQuantityDeIncrement} title="Decrement Quantity"  ><lightning-icon size="small" icon-name="utility:dash"></lightning-icon></button>
+                                                        </template>
+                                                    <input class="slds-input" style="width:35%;border-radius:0;"  placeholder="Quantity" type="number" value={qtyValue} min={minqtyValue} max={maxqtyValue} step="1"
+                                                        onchange={handleQuantityChange} />
+                                                    <template if:true={disableMaxQty}>
+                                                        <button disabled class="slds-button  slds-button_neutral btnClass "   title="Increment Quantity" ><lightning-icon size="small" icon-name="utility:add"> </lightning-icon></button>
+                                                    </template>
+                                                    <template if:false={disableMaxQty}>
+                                                        <button class="slds-button  slds-button_neutral btnClass " onclick= {handleQuantityIncrement}  title="Increment Quantity" ><lightning-icon size="small" icon-name="utility:add"> </lightning-icon></button>
+                                                    </template>
+                                                </span>
+                                            </template>
+                                        </div>
+                                    </div>
+                                    <template if:true={productCartItem.TotalAdjustmentAmount}> <!--TotalCouponAdjustment__c-->
+                                        <div class="slds-grid slds-wrap slds-m-bottom_medium">
+                                            <div class="slds-size_6-of-12">
+                                                <span class="slds-m-right_small nameClass ">
+                                                    Total Discount  
+                                                </span>
+                                            </div>
+                                            <div class="slds-size_6-of-12 textright">
+                                                    <span class=" nameClass" style="font-weight: bold;">
+                                                    <lightning-formatted-number currency-code={currencyCode} format-style="currency"
+                                                                                value={productCartItem.TotalAdjustmentAmount}>
+                                                    </lightning-formatted-number>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    
+    
+                                </div>
+                                <div class="slds-grid slds-wrap">
+                                    <div class="slds-size_6-of-12">
+                                        <span class="slds-m-right_small ">
+                                            <b>Total Price</b>:  
+                                        </span>
+                                    </div>
+                                    <div class="slds-size_6-of-12 textright">
+                                            <span class="" style="font-weight: bold;">
+                                            <lightning-formatted-number currency-code={currencyCode} format-style="currency"
+                                                                        value={productCartItem.TotalPriceAfterAllAdjustments}>
+                                            </lightning-formatted-number>
+                                        </span>
+                                    </div>
+                                </div>
+    
+                            </div>
+    
+                        </div>
+                    </div>
+                    <div if:true={productCartItem}>
+                        <c-b2b-payment-method
+                                if:true={hasPrice}
+                                cart-id={cartId}
+                                product-category={productCategory}
+                                product-added-to-cart={productAddedToCart}
+                                can-check-out={isCartLocked}
+                                onnotifyaddtocart={notifyAddToCart}
+                                product-cart-item={productCartItem}
+                                oncouponupdate={handleCoupon}
+                        ></c-b2b-payment-method>
+                    </div>
+                </div>                    
+            </div>
+        </div>
+            
+            <!---->
+            
+            
+        <!-- <div>
+            <div class="slds-grid slds-gutters">
+                <div class="slds-size_5-of-12 slds-p-around_medium earlyBirdDiv">
+
+
+                </div>
+                <div class="slds-size_7-of-12 slds-p-around_medium tirePricingDiv">
+
+                </div>
+            </div>
+        </div> -->
+        <div>
+            <div class="slds-grid slds-gutters">
+                <div class="slds-size_5-of-12 slds-p-around_medium" style="padding-left:0px;">
+                    
+                </div>
+                
+                <div  class="slds-size_7-of-12 " style="padding-left:0px;">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
